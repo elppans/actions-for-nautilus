@@ -17,4 +17,5 @@
 * Add backup config management to the configurator
 * Add ability to specify the default shell to use for commands that have `use_shell` specified
 * Allow filtering based upon a script
+* Allow "disabling" without deleting (and hiding/showing disabled actions in the configurator) 
 * ...
