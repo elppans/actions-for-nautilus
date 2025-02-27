@@ -13,7 +13,7 @@ provides=()
 conflicts=('filemanager-actions')
 backup=("~/.local/share/actions-for-nautilus/config.json")
 options=()
-install=
+install=pkgbuild.install
 changelog=
 url="https://github.com/elppans/${upstream_name}"
 source=("git+${url}.git#branch=main")
@@ -22,11 +22,11 @@ sha256sums=('SKIP')
 prepare() {
 	sed -Ei 's#(^.*LOC=)\$\(.+ALLOC\)#\1/usr/share#' "$srcdir/$upstream_name/Makefile"
 }
-pkgver() {
-	cd "$upstream_name"
-	git describe --tags | tr - _
-}
+# pkgver() {
+# 	cd "$upstream_name"
+# 	git describe --tags | tr - _
+# }
 package() {
-	cd "$upstream_name"
+ 	cd "${srcdir}/${upstream_name}"
 	make GLOBALLOC="$pkgdir/usr/share" install_global
 }
