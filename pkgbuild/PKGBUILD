@@ -13,7 +13,7 @@ provides=()
 conflicts=('filemanager-actions')
 backup=("~/.local/share/actions-for-nautilus/config.json")
 options=()
-install=pkgbuild.install
+install=${pkgname}.install
 changelog=
 url="https://github.com/elppans/${upstream_name}"
 source=("git+${url}.git#branch=main")
@@ -30,3 +30,20 @@ package() {
  	cd "${srcdir}/${upstream_name}"
 	make GLOBALLOC="$pkgdir/usr/share" install_global
 }
+cat > "${pkgname}.install" <<EOF
+post_install() {
+        USER_HOME=$(getent passwd $USER | cut -d: -f6)
+        mkdir -p "$USER_HOME/.local/share/actions-for-nautilus"
+		[ -f "$USER_HOME/.local/share/actions-for-nautilus/config.json" ] || cp /usr/share/actions-for-nautilus-configurator/sample-config.json "$USER_HOME/.local/share/actions-for-nautilus/config.json"
+
+}
+
+post_upgrade() {
+    post_install
+}
+
+post_remove() {
+    USER_HOME=$(getent passwd $USER | cut -d: -f6)
+    [ ! -f "$USER_HOME/.local/share/actions-for-nautilus/config.json" ] || rm -rf "$USER_HOME/.local/share/actions-for-nautilus"
+}
+EOF
