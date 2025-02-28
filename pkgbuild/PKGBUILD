@@ -1,4 +1,6 @@
 # Maintainer: Florian Schweiger <mpkmpoza@duck.com>
+# shellcheck disable=all
+
 upstream_name=actions-for-nautilus
 pkgname="$upstream_name-git"
 pkgver=v1.6.1
@@ -23,6 +25,23 @@ sha256sums=('SKIP')
 
 prepare() {
   sed -Ei 's#(^.*LOC=)\$\(.+ALLOC\)#\1/usr/share#' "$srcdir/$upstream_name/Makefile"
+  # Verifica se o comando gnome-terminal existe
+  if ! command -v gnome-terminal &>/dev/null; then
+    # Se gnome-terminal não existe, verifica se gnome-console existe
+    if command -v gnome-console &>/dev/null; then
+      # Se gnome-console existe, substitui gnome-terminal por gnome-console no arquivo
+      sed -i 's/gnome-terminal/gnome-console/g' "$srcdir/$upstream_name/configurator/sample-config.json"
+    fi
+  fi
+
+  # Verifica se o comando gedit existe
+  if ! command -v gedit &>/dev/null; then
+    # Se gedit não existe, verifica se gnome-text-editor existe
+    if command -v gnome-text-editor &>/dev/null; then
+      # Se gnome-text-editor existe, substitui gedit por gnome-text-editor no arquivo
+      sed -i 's/gedit/gnome-text-editor/g' "$srcdir/$upstream_name/configurator/sample-config.json"
+    fi
+  fi
 }
 # pkgver() {
 # 	cd "$upstream_name"
@@ -32,7 +51,7 @@ package() {
   cd "${srcdir}/${upstream_name}"
   make GLOBALLOC="$pkgdir/usr/share" install_global
 }
-cat > "${pkgname}.install" <<EOF
+cat >"${pkgname}.install" <<EOF
 post_install() {
   mkdir -p "$HOME/.local/share/actions-for-nautilus"
   [ -f "$HOME/.local/share/actions-for-nautilus/config.json" ] || \
