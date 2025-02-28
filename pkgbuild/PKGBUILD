@@ -34,7 +34,9 @@ package() {
 cat > "${pkgname}.install" <<EOF
 post_install() {
   mkdir -p "$HOME/.local/share/actions-for-nautilus"
-  [ -f "$HOME/.local/share/actions-for-nautilus/config.json" ] || cp /usr/share/actions-for-nautilus-configurator/sample-config.json "$HOME/.local/share/actions-for-nautilus/config.json"
+  [ -f "$HOME/.local/share/actions-for-nautilus/config.json" ] || \
+  cp /usr/share/actions-for-nautilus-configurator/sample-config.json "$HOME/.local/share/actions-for-nautilus/config.json" && \
+  chown -R $USER:$USER "$HOME/.local/share/actions-for-nautilus"
   echo "The installation has been successfully completed!"
   echo "To apply the changes, please restart Nautilus by running the following command in the terminal: nautilus -q"
 }
