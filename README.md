@@ -63,10 +63,11 @@ The Debian package specifies the following **Suggests** dependencies that will
 greatly enhance the utility of the extension as well as allow the delivered sample
 configuration to work on first launch:
 
-* `xclip`  - a command line tool for managing the X clipboards  
-* `zenity` - a Gnome UI toolkit for shell scripts  
-* `baobab` - an option to "Open Disk Usage Analyzer"  
+* `xclip`   - a command line tool for managing the X clipboards  
+* `zenity`  - a Gnome UI toolkit for shell scripts  
+* `baobab`  - an option to "Open Disk Usage Analyzer"  
 * `gtkhash` - a GTK+ utility for computing message digests or checksums  
+* `meld`    - a graphical tool for diffing and merging files  
 
 It is highly recommended to install these extra packages.
 
