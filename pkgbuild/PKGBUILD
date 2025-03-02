@@ -4,12 +4,12 @@
 upstream_name=actions-for-nautilus
 pkgname="$upstream_name-git"
 pkgver=v1.6.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Nautilus extension to add arbitrary actions to the file selection context menu'
 arch=('x86_64')
 license=('Apache')
 depends=('nautilus' 'python-nautilus' 'python-gobject' 'procps-ng' 'jquery')
-depends+=('baobab' 'gtkhash' 'xclip' 'zenity')
+depends+=('baobab' 'gtkhash' 'xclip' 'meld' 'zenity')
 makedepends=('git' 'sed')
 optdepends=()
 provides=()
