@@ -1,4 +1,18 @@
-**IMPORTANT NOTE**
+# ANNOUNCEMENT
+
+*Version 2 pre-release is here*
+
+It appears to be functioning very well but it would be helpful to have people test it and feed back via issues.
+
+The version is in the [v2](https://github.com/bassmanitram/actions-for-nautilus/tree/v2) branch, the
+[latest v2 pre-release](https://github.com/bassmanitram/actions-for-nautilus/releases/tag/v2.0.0.pre2-1) release, and the associated 
+[Debian package](https://github.com/bassmanitram/actions-for-nautilus/releases/download/v2.0.0.pre2-1/actions-for-nautilus_2.0.0.pre2-1_all.deb).
+
+All major feature updates are explained in the doc and are linkable from the configurator.
+
+Thank you
+
+# IMPORTANT NOTE
 All users of releases 1.6.0 and before should update their installations to release 1.6.1 as soon as possible
 due to a security issue.
 
@@ -23,6 +37,7 @@ including:
     'symbolic-link' ... - (matching and non-matching conditions supported),
   * full path pattern matching, expressed as glob patterns or regular expressions, again
     with support for matching and non-matching conditions.
+  * even invoking an external program to decide if an action should be visible
 * execution of an arbitrary command/script when a menu item is activated, with
   the same "PLURAL" and "SINGULAR" semantics as the 
   `filemanager/nautilus-actions` project
@@ -299,7 +314,8 @@ actions or further nested menus.
       "actions": [
         ...
       ],
-      "sort": "manual or auto"
+      "sort": "manual or auto",
+      "disabled": false
     },
     ...
 ```
@@ -318,6 +334,11 @@ Menu actions are expected to contain two additional properties:
 
   *Default* - `manual`
 
+* `disabled` - OPTIONAL - used to allow a menu to be present in the configuration, but
+  ignored when the Gnome Files context menu is constructed
+
+  *Default* - `false`.
+
 When the Nautilus/Files context menu is activated for a selection, the extension assesses 
 all the commands configured within a menu to establish if the commands are relevant for the current 
 selection. If no commands are found to be relevant, then the menu does not appear in the Nautilus/Files 
@@ -331,11 +352,12 @@ Actions with a `type` property of `command` define actions that, when clicked on
     {
       "type": "command",
       "label": "My Command",
-      command_line: "my-script.sh %F %c",
-      cwd: "%d",
-      use_shell: true,
-      min_items: 1,
-      max_items: 1,
+      "command_line": "my-script.sh %F %c",
+      "cwd": "%d",
+      "show_if_true": "...",
+      "use_shell": true,
+      "min_items": 1,
+      "max_items": 1,
       "mimetypes": [
         ...
       ],
@@ -344,7 +366,8 @@ Actions with a `type` property of `command` define actions that, when clicked on
       ],
       "path_patterns": [
         ...
-      ]
+      ],
+      "disabled": false
     },
     ...
 ```
@@ -380,6 +403,14 @@ These are expected to have the following additional properties:
   resolve to a single valid directory name
 
   *Default* - undefined
+
+* `show_if_true` - OPTIONAL - a command or shell pipeline to execute in order
+  to establish whether the action should be visible in the Gnome Files context
+  menu. The command/pipeline should emit a single line on `stdout` with the word
+  `true` in order to cause the action to appear. Any other output from the command/
+  pipeline will be prevent the action from appearing
+
+  *Default* - undefined (and, so, unused)
 
 * `use_shell` - OPTIONAL - a boolean value (`true` or `false`) that indicates
   whether the command should be run by the default system shell. If the command
@@ -523,6 +554,11 @@ These are expected to have the following additional properties:
   Any other value will disable the permissions check.
 
   *Default* - user access permissions are not checked.
+
+* `disabled` - OPTIONAL - used to allow an action to be present in the configuration, but
+  ignored when the Gnome Files context menu is constructed
+
+  *Default* - `false`.
 
 With the `mimetypes`, `filetypes` and `path_patterns` filter lists, all selected files
 must match at least one non-negated rule (if there are any non-negated rules), while 

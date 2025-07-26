@@ -1,6 +1,6 @@
 import subprocess, shlex, inspect
 from gi.repository import Nautilus, GObject
-import afn_place_holders, afn_config, afn_menu
+import afn_place_holders, afn_config, afn_menu, os
 
 ###
 ### A multi-version alternative to require_version
@@ -22,39 +22,56 @@ class ActionsForNautilus(Nautilus.MenuProvider, GObject.GObject):
 #
     def get_file_items(self, *args):
         files = args[-1]
-        return afn_menu.create_menu_items(self.config.get_config(), files, "File", _run_command)
+        if afn_config.debug:
+            print(f'GET FILES: {" ".join(f.get_location().get_path() for f in files)}')
+
+        if len(files) < 1:
+            if afn_config.debug:
+                print("NO FILE")
+            return None
+
+        menu = afn_menu.create_menu_items(self.config, files, "File", _run_command)
+        if afn_config.debug:
+            print(f"END GET FILES")
+        return menu
 
     def get_background_items(self, *args):
         file = args[-1]
-        return afn_menu.create_menu_items(self.config.get_config(), [file], "Background", _run_command)
+        if afn_config.debug:
+            print(f'GET BACKGROUND: {file.get_location().get_path()}')
+        menu = afn_menu.create_menu_items(self.config, [file], "Background", _run_command)
+        if afn_config.debug:
+            print(f"END BACKGROUND")
+        return menu
 
 #
 # Command execution
 #
 def _run_command(menu, config_item, files):
-    cwd = afn_place_holders.resolve(config_item["cwd"], 0, [files[0]], False) if "cwd" in config_item else None
-    use_shell = bool(config_item["use_shell"]) if "use_shell" in config_item else False
+    use_shell = config_item.use_shell
 
-    count = 1 if config_item["cmd_behavior"] == afn_place_holders.PLURAL else len(files)
+    count = 1 if config_item.cmd_behaviour == afn_place_holders.PLURAL else len(files)
 
     if afn_config.debug:
         print(config_item)
         print(files)
-        print(cwd)
 
+    context = None
     for i in range(count):
-        #
-        # This is innefficient at the moment because the plural and agnostic place holder
-        # expansions are recalculated every time
-        #
-        final_command_line = afn_place_holders.resolve(config_item["command_line"], i, files, True)
+        cwd = None if config_item.cwd is None else afn_place_holders.resolve(config_item.cwd, 0, [files[i]], False, None)[0]
+        afn_config.debug_print(f'cwd: {cwd}')
+
+        (final_command_line, context) = afn_place_holders.resolve(config_item.command_line, i, files, True, context)
 
         if not use_shell:
             #
             # Split into args and lose any shell escapes
             #
             final_command_line = list(map(lambda arg: arg.replace("\\\\","!§ESCBACKSLASH§µ").replace("\\", "").replace("!§ESCBACKSLASH§µ","\\"),shlex.split(final_command_line)))
+
         if afn_config.debug:
-            print("COMMAND " + str(i))
-            print(final_command_line)
+            print(f"COMMAND {str(i)}: {final_command_line}")
+            print(f'Cwd: {cwd}')
+            print(f'Use shell: {use_shell}')
+
         subprocess.Popen(final_command_line, cwd=cwd, shell=use_shell)
